@@ -1,4 +1,4 @@
-import { User } from "../models/userModels";
+import { User } from "../models/userModels.js";
 import httpStatus from "http-status";
 import bcrypt, {hash} from "bcrypt"
 import crypto from "crypto";
@@ -10,7 +10,7 @@ if(!username || !password){
     return res.status(400).json({message: "Please Provide"});
 }
     try{
-const user = await User.find({username});
+const user = await User.findOne({username});
 if(!user){
     return res.status(httpStatus.NOT_FOUND).json({message: "User not found"});
 }
