@@ -1,0 +1,15 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+
+.landingPageContainer{
+  width: 100vw ;
+  height: 100vh;
+  background:url("./assets/download.jpg") ;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+}
