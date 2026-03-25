@@ -11,5 +11,25 @@ html, body, #root {
   background:url("./assets/download.jpg") ;
   background-repeat: no-repeat;
   background-size: cover;
+  color: white;
+ 
+}
+.landingPageContainer nav h2{
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight:500px ;
 
+}
+ 
+.landingPageContainer nav{
+  padding-inline: 1.2rem;
+  padding-block: 1.6rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.landingPageContainer nav .nav-list{
+  display: flex;
+  gap: 1.6rem;
+  cursor: pointer;
 }
