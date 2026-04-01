@@ -1,5 +1,7 @@
 import React from "react";
+import {Link} from 'react-router-dom';
 import "../App.css";
+import videoCall from "../assets/videoCall.avif";
 
 
 export default function Landing(){
@@ -22,6 +24,13 @@ export default function Landing(){
 <div className="landingMainContainer">
     <div>
         <h1> <span style={{color:"#FFA500"}}>Connect </span>with more people.</h1>
+        <p>Cover the distance with video calls.</p>
+        <div role="button">
+           <Link to={"/auth"}>Get Started</Link>
+        </div>
+    </div>
+    <div>
+        <img src={videoCall} alt="" />
     </div>
 </div>
 
