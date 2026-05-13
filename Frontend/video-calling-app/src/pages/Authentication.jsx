@@ -1,4 +1,6 @@
+import * as React from "react";
 import { useState } from "react";
+import {Button} from "@mui/material";
 
 function LockIcon() {
   return (
@@ -51,13 +53,15 @@ function EyeIcon({ open }) {
   );
 }
 
-export default function SignIn() {
+export default function Authentication() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
   const [showPw, setShowPw] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = React.useState();
+  const [formstate, setFormstate] = React.useState(0);
 
   const validate = () => {
     const e = {};
@@ -84,8 +88,16 @@ export default function SignIn() {
             <LockIcon />
           </div>
         </div>
+            <div className="btn-signIn-signUp">
+               <Button variant={formstate===0? "contained": ""} onClick={()=>{setFormstate(0)}}>
+          SignIn
+          </Button>
 
-        <h1 className="auth-title">Sign in</h1>
+           <Button variant={formstate===0? "contained": ""} onClick={()=>{setFormstate(1)}}>
+          SignUp
+          </Button>
+            </div>
+       
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="email">
@@ -147,18 +159,9 @@ export default function SignIn() {
           {loading ? "SIGNING IN…" : "SIGN IN"}
         </button>
 
-        <div className="auth-links">
-          <a href="#" className="auth-link">
-            Forgot password?
-          </a>
-          <a href="#" className="auth-link">
-            Don't have an account? Sign Up
-          </a>
-        </div>
+       
 
-        <div className="auth-footer">
-          Copyright © <a href="#">Video Calls</a> 2026.
-        </div>
+        
       </div>
     </div>
   );
