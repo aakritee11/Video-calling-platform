@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@400;600;700&display=swap');
+
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -63,7 +66,6 @@ width: auto;
   height: 25rem;
   border-radius: 5rem;
 } 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@400;600;700&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -120,6 +122,10 @@ width: auto;
   justify-content: center;
   margin-bottom: 18px;
 }
+.btn-signIn-signUp{
+ display: flex; 
+ justify-content: space-evenly;
+}
 
 .auth-icon {
   width: 56px; height: 56px;
@@ -142,6 +148,7 @@ width: auto;
 }
 
 .auth-field {
+  margin-top: 12px;
   margin-bottom: 20px;
   position: relative;
 }
@@ -232,31 +239,6 @@ width: auto;
 .auth-btn:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 6px 22px rgba(91, 142, 247, 0.5); }
 .auth-btn:active { transform: translateY(0); }
 .auth-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-
-.auth-links {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13.5px;
-}
-
-.auth-link {
-  color: #5b8ef7;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-.auth-link:hover { color: #7c6ef5; text-decoration: underline; }
-
-.auth-footer {
-  text-align: center;
-  margin-top: 32px;
-  font-size: 12px;
-  color: #aab2cc;
-}
-
-.auth-footer a { color: #5b8ef7; text-decoration: none; }
-.auth-footer a:hover { text-decoration: underline; }
 
 .error-msg {
   color: #e05260;
