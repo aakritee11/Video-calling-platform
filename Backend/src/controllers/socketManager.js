@@ -8,7 +8,7 @@ let timeOnline={}
 export const connectTosocket = (server)=>{
     const io = new Server(server,{
         cors:{
-            origin:"*",
+            origin:"http://localhost:5173",
             methods:["GET","POST"],
             allowedHeaders:["*"],
             credentials:true
@@ -16,7 +16,7 @@ export const connectTosocket = (server)=>{
     });
     
     io.on("connection", (socket)=>{
-        console.log("something connected");
+        console.log("something connected",socket.id);
         socket.on("join-call",(path)=>{
       if(connections[path]=== undefined){
            connections[path] =[]

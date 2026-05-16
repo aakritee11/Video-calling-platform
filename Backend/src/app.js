@@ -12,9 +12,12 @@ import mongoose from "mongoose"
 import cors from "cors"
 import userRoutes from "./routes/usersRoutes.js";
 
+
 const app = express();
 const server = createServer(app);
 const io = connectTosocket(server);
+console.log("socket server initialized");
+
 
 app.set("port",(8000));
 app.use(cors());
