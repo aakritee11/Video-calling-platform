@@ -1,9 +1,10 @@
+import dotenv from "dotenv"
+dotenv.config();
 import express from "express"
 import {createServer} from "node:http"
-import dotenv from "dotenv"
 import { connectTosocket } from "./controllers/socketManager.js"
 
-dotenv.config();
+
 
 import {Server} from "socket.io"
 
@@ -30,7 +31,6 @@ const start = async()=>{
     app.set("mongo_user")
     const connectionDb = await mongoose.connect(process.env.CONNECTION_STRING);
     console.log(`MONGO connect db host:${connectionDb.connection.host}`);
-// console.log(process.env.CONNECTION_STRING);
     server.listen(app.get("port"),()=>{
         console.log("listening on port 8000");
     })

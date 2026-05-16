@@ -16,10 +16,11 @@ export const connectTosocket = (server)=>{
     });
     
     io.on("connection", (socket)=>{
-        socket.on("accept-call",(path)=>{
-if(connections[path]=== undefined){
-    connections[path] =[]
-}
+        console.log("something connected");
+        socket.on("join-call",(path)=>{
+      if(connections[path]=== undefined){
+           connections[path] =[]
+      }
 connections[path].push(socket.id)
 
 timeOnline[socket.id]= new Date();
@@ -50,8 +51,7 @@ return [room, isFound];
 
 
      },['',false]);
-    });
-    if(found === true){
+       if(found === true){
         if(messages[matchingRoom] === undefined){
             messages[matchingRoom] = []
         }
@@ -66,6 +66,8 @@ return [room, isFound];
         })
 
     }
+    });
+  
 
     socket.on("disconnect",()=>{
 var diffTime = Math.abs(timeOnline[socket.id] - new Date())
