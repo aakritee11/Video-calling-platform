@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useEffect,useState, useContext } from "react";
 import withAuth from "../utils/withAuth";
 import { useNavigate } from "react-router";
 import "../App.css";
@@ -18,6 +18,15 @@ import callingImg from "../assets/calling.svg"
         await addToUserHistory(meetingCode);
         navigate(`/${meetingCode}`);
     }
+
+    useEffect(() => {
+    
+    if (window.localStream) {
+        window.localStream.getTracks().forEach(track => track.stop());
+        window.localStream = null;
+    }
+}, []);
+
     return(
         <>
            

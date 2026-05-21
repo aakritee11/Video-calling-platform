@@ -271,40 +271,51 @@ let connectToSocketServer = ()=>{
        socketRef.current.on("user-joined",( id, clients) =>{
         clients.forEach((socketListId)=>{
 
+      if(socketListId == socketIdRef.current) return;
+      if(connections[socketListId]) return;
+
+
       connections[socketListId] = new RTCPeerConnection(peerConfigConnections)
       connections[socketListId].onicecandidate = (event) =>{
         if(event.candidate !== null){
         socketRef.current.emit("signal",socketListId, JSON.stringify({'ice': event.candidate}))
          }
 }
-connections[socketListId].ontrack = (event) =>{
+connections[socketListId].ontrack = (event) => {
+    const remoteStream = event.streams[0];
+    if (!remoteStream) return;
 
-let videoExists = videoRef.current.find(video => video.socketId === socketListId)
-
-
-    if(videoExists){
-     setVideos(videos =>{
-        const updatedVideos = videos.map(video =>{
-           return video.socketId === socketListId ? {...video, stream:event.streams[0]} : video
+    const existing = videoRef.current.find(v => v.socketId === socketListId);
+    if (existing) {
+        setVideos(prev => {
+            const updated = prev.map(v =>
+                v.socketId === socketListId ? { ...v, stream: remoteStream } : v
+            );
+            videoRef.current = updated;
+            return updated;
         });
-     videoRef.current = updatedVideos;
-     return updatedVideos;
-     })
-    }else{
-        let newVideo = {
-            socketId: socketListId,
-            stream: event.streams[0],
-            autoPlay: true,
-            playsinline: true
-        }
-        setVideos(videos =>{
-            const updatedVideos = [...videos, newVideo];
-            videoRef.current = updatedVideos;
-            return updatedVideos;
-        });
+        return; 
     }
-    
 
+    setVideos(prev => {
+        if (prev.find(v => v.socketId === socketListId)) return prev;
+        const updated = [...prev, { socketId: socketListId, stream: remoteStream }];
+        videoRef.current = updated;
+        return updated;
+    });
+};
+
+
+if (window.localStream) {
+    window.localStream.getTracks().forEach(track => {
+        connections[socketListId].addTrack(track, window.localStream);
+    });
+} else {
+    let bs = new MediaStream([black(), silence()]);
+    window.localStream = bs;
+    bs.getTracks().forEach(track => {
+        connections[socketListId].addTrack(track, bs);
+    });
 }
  if(window.localStream !== undefined && window.localStream !== null ){
            window.localStream.getTracks().forEach(track => {
@@ -434,16 +445,55 @@ let sendMessage = ()=>{
     setMessage("");
 }
 
-let handleEndCall = ()=>{
-    try{
-        let tracks  = localVideoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop())
-    }
-    catch(e){ }
+
+    let handleEndCall = () => {
+    try {
+        
+        localVideoRef.current?.srcObject?.getTracks().forEach(track => track.stop());
+    } catch (e) {}
+
+    try {
+       
+        window.localStream?.getTracks().forEach(track => track.stop());
+        window.localStream = null;
+    } catch (e) {}
+
+    try {
+       
+        for (let id in connections) {
+            connections[id].close();
+            delete connections[id];
+        }
+    } catch (e) {}
+
+    try {
+       
+        socketRef.current?.disconnect();
+    } catch (e) {}
 
     routeTo("/home");
-}
+};
 
+useEffect(() => {
+    return () => {
+       
+        try {
+            window.localStream?.getTracks().forEach(track => track.stop());
+            window.localStream = null;
+        } catch (e) {}
+
+        try {
+            for (let id in connections) {
+                connections[id].close();
+                delete connections[id];
+            }
+        } catch (e) {}
+
+        try {
+            socketRef.current?.disconnect();
+        } catch (e) {}
+    };
+}, []);
 
     return(<div>
        {askForUsername === true?

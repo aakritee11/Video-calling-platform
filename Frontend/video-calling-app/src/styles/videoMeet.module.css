@@ -7,7 +7,7 @@
 
 .meetUserVideo{
     position: absolute;
-    bottom: 10;
+    bottom: 10vh;
     height:20vh;
     width: auto;
     left: 0;
@@ -44,10 +44,9 @@
     position: absolute;
     height: 90vh;
     right: 0;
-    background: orange;
+    background: whitesmoke;
     border-radius: 10px;
     width: 30vw;
-    bottom: 10vh;
     padding-inline: 20px;
 }
 
