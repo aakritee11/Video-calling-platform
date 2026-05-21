@@ -1,10 +1,12 @@
 import React from "react";
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import "../App.css";
 import videoCall from "../assets/videoCall.avif";
 
 
+
 export default function Landing(){
+    const router = useNavigate();
     return(
         <div className="landingPageContainer"
         >
@@ -13,9 +15,19 @@ export default function Landing(){
                     <h2>Virtual,but real.</h2>
                 </div>
                 <div className="nav-list">
-                    <p> Join as guest</p>
-                    <p>Register</p>
-                    <div role="button">
+                    <p onClick={()=>{
+                      router("/we12");
+                    }}>  Join as guest</p>
+                    <p 
+                     onClick={()=>{
+                        router("/auth");
+                     }}
+                    >Register</p>
+                    <div role="button"
+                     onClick={()=>{
+                        router("/auth");
+                     }}
+                    >
                         <p>Login</p>
                     </div>
                 </div>

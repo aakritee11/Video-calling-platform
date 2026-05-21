@@ -1,168 +1,177 @@
-import * as React from "react";
-import { useState } from "react";
-import {Button} from "@mui/material";
+import * as React from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { AuthContext } from '../Context/AuthContext';
+import { Snackbar } from '@mui/material';
 
-function LockIcon() {
-  return (
-    <svg
-      width="26"
-      height="26"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
 
-function EyeIcon({ open }) {
-  return open ? (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  ) : (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
-}
+
+
+
+const defaultTheme = createTheme();
 
 export default function Authentication() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(true);
-  const [showPw, setShowPw] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [username, setUsername] = React.useState();
-  const [formstate, setFormstate] = React.useState(0);
 
-  const validate = () => {
-    const e = {};
-    if (!email) e.email = "Email is required.";
-    else if (!/\S+@\S+\.\S+/.test(email)) e.email = "Enter a valid email.";
-    if (!password) e.password = "Password is required.";
-    else if (password.length < 6) e.password = "At least 6 characters.";
-    return e;
-  };
+    
 
-  const handleSubmit = () => {
-    const e = validate();
-    setErrors(e);
-    if (Object.keys(e).length > 0) return;
-    setLoading(true);
-    setTimeout(() => setLoading(false), 1800); // replace with your actual auth call
-  };
+    const [username, setUsername] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const [name, setName] = React.useState("");
+    const [error, setError] = React.useState("");
+    const [message, setMessage] = React.useState("");
 
-  return (
-    <div className="auth-root">
-      <div className="auth-card">
-        <div className="auth-icon-wrap">
-          <div className="auth-icon">
-            <LockIcon />
-          </div>
-        </div>
-            <div className="btn-signIn-signUp">
-               <Button variant={formstate===0? "contained": ""} onClick={()=>{setFormstate(0)}}>
-          SignIn
-          </Button>
 
-           <Button variant={formstate===0? "contained": ""} onClick={()=>{setFormstate(1)}}>
-          SignUp
-          </Button>
-            </div>
-       
+    const [formState, setFormState] = React.useState(0);
 
-        <div className="auth-field">
-          <label className="auth-label" htmlFor="email">
-            Email Address *
-          </label>
-          <input
-            id="email"
-            className="auth-input"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-          {errors.email && <div className="error-msg">{errors.email}</div>}
-        </div>
+    const [open, setOpen] = React.useState(false)
 
-        <div className="auth-field">
-          <label className="auth-label" htmlFor="password">
-            Password *
-          </label>
-          <div className="password-wrapper">
-            <input
-              id="password"
-              className="auth-input"
-              type={showPw ? "text" : "password"}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              style={{ paddingRight: "44px" }}
+
+    const { handleRegister, handleLogin } = React.useContext(AuthContext);
+
+    let handleAuth = async () => {
+        try {
+            if (formState === 0) {
+
+                let result = await handleLogin(username, password)
+
+
+            }
+            if (formState === 1) {
+                let result = await handleRegister(name, username, password);
+                console.log(result);
+                setName("");
+                setUsername("");
+                setMessage(result);
+                setOpen(true);
+                setError("")
+                setFormState(0)
+                setPassword("")
+            }
+        } catch (err) {
+
+            console.log(err);
+            let message = (err.response.data.message);
+            setError(message);
+        }
+    }
+
+
+    return (
+        <ThemeProvider theme={defaultTheme}>
+            <Grid container component="main" sx={{ height: '100vh' }}>
+                <CssBaseline />
+                <Grid
+                    item
+                    xs={false}
+                    sm={4}
+                    md={7}
+                    sx={{
+                        backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundColor: (t) =>
+                            t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                    }}
+                />
+                <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+                    <Box
+                        sx={{
+                            my: 8,
+                            mx: 4,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                            <LockOutlinedIcon />
+                        </Avatar>
+
+
+                        <div>
+                            <Button variant={formState === 0 ? "contained" : ""} onClick={() => { setFormState(0) }}>
+                                Sign In
+                            </Button>
+                            <Button variant={formState === 1 ? "contained" : ""} onClick={() => { setFormState(1) }}>
+                                Sign Up
+                            </Button>
+                        </div>
+
+                        <Box component="form" noValidate sx={{ mt: 1 }}>
+                            {formState === 1 ? <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="email"
+                                label="email"
+                                name="email"
+                                value={name}
+                                autoFocus
+                                onChange={(e) => setName(e.target.value)}
+                            /> : <></>}
+
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="username"
+                                label="Username"
+                                name="username"
+                                value={username}
+                                autoFocus
+                                onChange={(e) => setUsername(e.target.value)}
+
+                            />
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="password"
+                                label="Password"
+                                value={password}
+                                type="password"
+                                onChange={(e) => setPassword(e.target.value)}
+
+                                id="password"
+                            />
+
+                            <p style={{ color: "red" }}>{error}</p>
+
+                            <Button
+                                type="button"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                                onClick={handleAuth}
+                            >
+                                {formState === 0 ? "Login " : "Register"}
+                            </Button>
+
+                        </Box>
+                    </Box>
+                </Grid>
+            </Grid>
+
+            <Snackbar
+
+                open={open}
+                autoHideDuration={4000}
+                message={message}
+                onClose={()=> setOpen(false)}
             />
-            <button
-              className="toggle-pw"
-              onClick={() => setShowPw((v) => !v)}
-              type="button"
-              aria-label="Toggle password visibility"
-            >
-              <EyeIcon open={showPw} />
-            </button>
-          </div>
-          {errors.password && <div className="error-msg">{errors.password}</div>}
-        </div>
 
-        <div className="auth-row">
-          <input
-            type="checkbox"
-            id="remember"
-            className="auth-checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-          />
-          <label htmlFor="remember" className="auth-checkbox-label">
-            Remember me
-          </label>
-        </div>
-
-        <button className="auth-btn" onClick={handleSubmit} disabled={loading}>
-          {loading ? "SIGNING IN…" : "SIGN IN"}
-        </button>
-
-       
-
-        
-      </div>
-    </div>
-  );
+        </ThemeProvider>
+    );
 }

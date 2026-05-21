@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import {TextField,Button, IconButton, Badge } from '@mui/material';
+import {TextField,Button, IconButton, Badge, Modal } from '@mui/material';
 import io from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/videoMeet.module.css"
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -10,6 +11,7 @@ import MicOffIcon from "@mui/icons-material/MicOff"
 import ScreenShareIcon from "@mui/icons-material/ScreenShare"
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare"
 import ChatIcon from "@mui/icons-material/Chat"
+import SpeakerNotesOffIcon from '@mui/icons-material/SpeakerNotesOff';
 
 
 
@@ -36,13 +38,13 @@ export default function VideoMeet(){
 
      let [ audioAvailable, setAudioAvailable] = useState(true);
 
-     let  [video, setVideo] = useState([]);
+     let  [video, setVideo] = useState(false);
 
-     let [audio, setAudio] = useState();
+     let [audio, setAudio] = useState(false);
 
      let [screen, setScreen] = useState();
 
-     let [showModal, setShowModal ]= useState();
+     let [showModal, setShowModal ]= useState(true);
 
      let [screenAvailable, setScreenAvailable] = useState();
 
@@ -50,7 +52,7 @@ export default function VideoMeet(){
 
      let[ message, setMessage] = useState("");
 
-     let [newMessages, setNewMessages ]= useState(4);
+     let [newMessages, setNewMessages ]= useState(0);
 
      let [askForUsername, setAskForUsername] = useState(true);
 
@@ -121,12 +123,14 @@ let getUserMediaSuccess = (stream)=>{
    for(let id in connections){
     if(id == socketIdRef.current) continue;
 
-    connections[id].addStream(window.localStream)
+    window.localStream.getTracks().forEach(track => {
+    connections[id].addTrack(track, window.localStream);
+});
 
     connections[id].createOffer().then((description)=>{
         connections[id].setLocalDescription(description)
         .then(()=>{
-            socketIdRef.current.emit("signal", id, JSON.stringify({"sdp": connections[id].localDescription}))
+            socketRef.current.emit("signal", id, JSON.stringify({"sdp": connections[id].localDescription}))
         }).catch(e => console.log(e))
     })
 
@@ -148,7 +152,9 @@ let getUserMediaSuccess = (stream)=>{
 
 
   for(let id in connections){
-    connections[id].addStream(window.localStream)
+    window.localStream.getTracks().forEach(track => {
+    connections[socketListId].addTrack(track, window.localStream);
+});
     connections[id].createOffer().then((description)=>{
         connections[id].setLocalDescription(description)
         .then(()=>{
@@ -181,7 +187,7 @@ let black = ({width = 640, height= 480} ={})=>{
 
 
 let getUserMedia = ()=>{
-    if((video && videoAvailable) || (audio || audioAvailable)){
+    if((video && videoAvailable) || (audio && audioAvailable)){
         navigator.mediaDevices.getUserMedia({video:video, audio: audio})
         .then(getUserMediaSuccess)
         .then((stream)=>{})
@@ -230,8 +236,15 @@ let gotMessageFromServer = (fromId, message) =>{
   }
 }
 
-let addMessage = ()=>{
+let addMessage = (data, sender , socketIdSender )=>{
+  setMessages((prevMessages)=>[
+    ...prevMessages,
+    {sender: sender, data: data}
+  ]);
 
+  if(socketIdSender !== socketIdRef.current){
+    setNewMessages((prevMessages)=> prevMessages +1)
+  }
 }
 
 let connectToSocketServer = ()=>{
@@ -252,7 +265,7 @@ let connectToSocketServer = ()=>{
        socketRef.current.on("chat-message", addMessage)
 
        socketRef.current.on("user-left",(id)=>{
-        setVideo((videos)=>videos.filter((video)=>video.socketId !== id))
+        setVideos((videos)=>videos.filter((video)=>video.socketId !== id))
        })
 
        socketRef.current.on("user-joined",( id, clients) =>{
@@ -264,15 +277,15 @@ let connectToSocketServer = ()=>{
         socketRef.current.emit("signal",socketListId, JSON.stringify({'ice': event.candidate}))
          }
 }
-connections[socketListId].onaddstream = (event) =>{
+connections[socketListId].ontrack = (event) =>{
 
 let videoExists = videoRef.current.find(video => video.socketId === socketListId)
 
 
     if(videoExists){
-     setVideo(videos =>{
+     setVideos(videos =>{
         const updatedVideos = videos.map(video =>{
-            video.socketId === socketListId ? {...video, stream:event.stream} : video
+           return video.socketId === socketListId ? {...video, stream:event.streams[0]} : video
         });
      videoRef.current = updatedVideos;
      return updatedVideos;
@@ -280,7 +293,7 @@ let videoExists = videoRef.current.find(video => video.socketId === socketListId
     }else{
         let newVideo = {
             socketId: socketListId,
-            stream: event.stream,
+            stream: event.streams[0],
             autoPlay: true,
             playsinline: true
         }
@@ -294,12 +307,16 @@ let videoExists = videoRef.current.find(video => video.socketId === socketListId
 
 }
  if(window.localStream !== undefined && window.localStream !== null ){
-            connections[socketListId].addStream(window.localStream);
+           window.localStream.getTracks().forEach(track => {
+    connections[socketListId].addTrack(track, window.localStream);
+});
         }else{
            
            let blackSilence = (...args)=> new MediaStream([black(...args), silence()]);
            window.localStream = blackSilence();
-           connections[socketListId].addStream(window.localStream );
+           window.localStream.getTracks().forEach(track => {
+    connections[socketListId].addTrack(track, window.localStream);
+});
             
         }
         })
@@ -309,7 +326,9 @@ let videoExists = videoRef.current.find(video => video.socketId === socketListId
                 if(id2 == socketIdRef.current) continue
 
                 try{
-                    connections[id2].addStream(window.localStream)
+                    window.localStream.getTracks().forEach(track => {
+    connections[id2].addTrack(track, window.localStream);
+});
                 }catch{(e)=>console.log(e)}
 
                 connections[id2].createOffer().then((description)=>{
@@ -333,6 +352,8 @@ let getMedia = () =>{
     setAudio(audioAvailable);
     connectToSocketServer();
 }
+
+let routeTo = useNavigate();
 
 let connect = ()=>{
     setAskForUsername(false);
@@ -360,7 +381,9 @@ let getDisplayMediaSuccess = (stream)=>{
     for(let id in connections){
         if(id=== socketIdRef.current) continue;
 
-        connections[id].addStream(window.localStream)
+       window.localStream.getTracks().forEach(track => {
+    connections[id].addTrack(track, window.localStream);
+});
          connections[id].createOffer().then((description)=>[
             connections[id].setLocalDescription(description)
             .then(()=>{
@@ -394,7 +417,7 @@ let getDisplayMedia = ()=>{
             .then(getDisplayMediaSuccess)
             .then((stream)=>{})
             .catch((e)=> console.log(e));
-    }
+    }}
 }
 
 useEffect(()=>{
@@ -405,6 +428,22 @@ useEffect(()=>{
 let handleScreen =()=>{
     setScreen(!screen);
 }
+
+let sendMessage = ()=>{
+    socketRef.current.emit("chat-message", message, username);
+    setMessage("");
+}
+
+let handleEndCall = ()=>{
+    try{
+        let tracks  = localVideoRef.current.srcObject.getTracks();
+        tracks.forEach(track => track.stop())
+    }
+    catch(e){ }
+
+    routeTo("/home");
+}
+
 
     return(<div>
        {askForUsername === true?
@@ -429,14 +468,40 @@ let handleScreen =()=>{
     :
     <div className={styles.meetVideoContainer}>
        
+      { showModal? <div className={styles.chatRoom}>
+        <div className={styles.chatContainer  }>
+             <h2>Chat</h2>
+
+             <div className={styles.chattingDisplay}>
+                {messages.map((item,index)=>{
+                   return(
+                    <div style={{marginBottom :"20px"}} key = {index}>
+                       <p style={{fontWeight: "bold"}}>{item.sender}</p>
+                       <p>{item.data}</p>
+                    </div>
+                   )
+                })}
+             </div>
+        
+        
+         <div className={styles.chattingArea}>
+             <TextField value={message} onChange={e=> setMessage(e.target.value)} label="Enter your Message" id="outlined-basic"  variant="outlined" />
+             <Button variant="contained" onClick={sendMessage} >Send</Button>
+
+         </div>
+     
+        </div>
+    </div> : <></>}
+
+
        <div className={styles.buttonContainers}>
 
           <IconButton onClick={handleVideo} style={{color:"white"}}>
             {(video===true)?<VideocamIcon/> : <VideocamOffIcon/>}
           </IconButton>
 
-          <IconButton style={{color:"red"}}>
-             <CallEndIcon/>
+          <IconButton onClick={handleEndCall} style={{color:"red"}}>
+             <CallEndIcon />
           </IconButton>
 
           <IconButton onClick={handleAudio} style={{color:"white"}}>
@@ -450,8 +515,9 @@ let handleScreen =()=>{
          : <></>}
 
            <Badge badgeContent = {newMessages} max={999} color="primary">
-             <IconButton style={{color:"white"}}>
-               <ChatIcon/>
+             <IconButton onClick={()=> setShowModal(!showModal)} style={{color:"white"}}>
+              {/* {Modal=== true? <ChatIcon/>: <SpeakerNotesOffIcon/>}  */}
+              <ChatIcon/>
              </IconButton>
 
            </Badge>
@@ -487,4 +553,4 @@ let handleScreen =()=>{
       
        </div>
     )
-}}
+}
