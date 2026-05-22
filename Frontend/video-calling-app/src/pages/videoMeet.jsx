@@ -12,7 +12,7 @@ import ScreenShareIcon from "@mui/icons-material/ScreenShare"
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare"
 import ChatIcon from "@mui/icons-material/Chat"
 import SpeakerNotesOffIcon from '@mui/icons-material/SpeakerNotesOff';
-import server from "../environment";
+import server from "../environment.js";
 
 
 
