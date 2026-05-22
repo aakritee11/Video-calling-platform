@@ -6,9 +6,9 @@ import Landing from './pages/Landing.jsx'
 import Authentication from './pages/Authentication.jsx'
 import {Route, BrowserRouter, Routes } from 'react-router-dom'
 import { AuthProvider } from './Context/AuthContext.jsx'
-import VideoMeet from './pages/VideoMeet.jsx'
+import VideoMeet from './pages/videoMeet.jsx'
 import Home from './pages/Home.jsx'
-import History from "./pages/History.jsx";
+import History from "./pages/history.jsx";
 
  function App() {
   
