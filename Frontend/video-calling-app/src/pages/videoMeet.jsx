@@ -495,6 +495,14 @@ useEffect(() => {
     };
 }, []);
 
+ const scrollRef = useRef(null);
+
+ useEffect(()=>{
+   if(scrollRef.current){
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+   }
+ },[messages])
+
     return(<div>
        {askForUsername === true?
           <div>
@@ -522,7 +530,7 @@ useEffect(() => {
         <div className={styles.chatContainer  }>
              <h2>Chat</h2>
 
-             <div className={styles.chattingDisplay}>
+             <div ref={scrollRef}  className={styles.chattingDisplay}>
                 {messages.map((item,index)=>{
                    return(
                     <div style={{marginBottom :"20px"}} key = {index}>
