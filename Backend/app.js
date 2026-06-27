@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 dotenv.config();
 import express from "express"
 import {createServer} from "node:http"
-import { connectTosocket } from "./controllers/socketManager.js"
+import { connectTosocket } from "./src/controllers/socketManager.js"
 
 
 
@@ -10,7 +10,7 @@ import {Server} from "socket.io"
 
 import mongoose from "mongoose"
 import cors from "cors"
-import usersRoutes from "./routes/usersRoutes.js";
+import usersRoutes from "./src/routes/usersRoutes.js";
 
 
 const app = express();
@@ -18,8 +18,8 @@ const server = createServer(app);
 const io = connectTosocket(server);
 console.log("socket server initialized");
 
-
-app.set("port",(8000));
+const PORT = process.env.PORT|| 8000;
+app.set("port",PORT);
 app.use(cors(
     {
     origin: "*",
@@ -36,16 +36,20 @@ app.use((req, res, next) => {
 });
 app.use("/api/v1/users", usersRoutes);
 
-app.get("/home",(req,res)=>{
-    return res.json({"hello":"world"});
+app.get("/",(req,res)=>{
+    return res.json({
+        message: "Video Calling API",
+        version: "1.0.0",
+        status: "running"
+    });
 })
 
 const start = async()=>{
-    app.set("mongo_user")
+    
     const connectionDb = await mongoose.connect(process.env.CONNECTION_STRING);
     console.log(`MONGO connect db host:${connectionDb.connection.host}`);
-    server.listen(app.get("port"),()=>{
-        console.log("listening on port 8000");
+    server.listen(PORT,()=>{
+        console.log(`listening on ${PORT}`);
     })
 }
 
